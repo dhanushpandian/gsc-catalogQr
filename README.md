@@ -1,7 +1,7 @@
-# 🛠️ Flask Project Task Tracker
+#  Flask Project Task Tracker
 
 
-## 📋 Project Setup Tasks
+##  Project Setup Tasks
 
 - [x] Initialize Flask app
 - [x] Created initial project structure
@@ -14,7 +14,7 @@
 
 ---
 
-## 🧠 Backend Development
+##  Backend Development
 
 - [ ] Define database models (`Part`, `Category`, etc.)
 - [ ] Implement form handling for part submission 
@@ -22,7 +22,7 @@
 
 ---
 
-## 🎨 Frontend Tasks
+##  Frontend Tasks
 
 - [ ] Style templates match thier UI
 - [ ] Add loading animation for QR generation 
@@ -30,7 +30,7 @@
 
 ---
 
-## 🧪 Testing & Debugging
+##  Testing & Debugging
 
 - [ ] Write unit tests for database models
 - [ ] Test QR code generation with edge cases
@@ -38,23 +38,10 @@
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 - [ ] Set up production server 
 - [ ] Add instructions for local setup in this README
 - [ ] Create `.env` file for secrets
 
----
-
-### ✍️ How to Update
-
-To mark a task as complete, just change:
-```
-- [ ] Task name
-```
-to:
-```
-- [x] Task name
-```
-#### add your name next to tasks you're working on.
 ---
