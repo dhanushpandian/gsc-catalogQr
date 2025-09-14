@@ -141,17 +141,17 @@
         <button type="submit">Submit</button>
     </form>
   
-    {% if user_id %}
+    {% if build_name %}
     <div class="user-id">
-        <h3>Your unique ID: {{ user_id }}</h3>
-        <p>Use this ID to view your data later at: /{{ user_id }}</p>
+        <h3>Your unique ID: {{ build_name }}</h3>
+        <p>Use this ID to view your data later at: /{{ build_name }}</p>
 
         <!-- Display QR code -->
         <h3>Scan or Save Your QR Code</h3>
         <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
 
         <!-- Download QR Code -->
-        <a href="{{ url_for('download_qr', user_id=user_id) }}" download>
+        <a href="{{ url_for('download_qr', build_name=build_name) }}" download>
             <button>Download QR Code</button>
         </a>
     </div>

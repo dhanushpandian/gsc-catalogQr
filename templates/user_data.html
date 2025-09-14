@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>User Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            text-align: center;
+        }
+        .component {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .component h3 {
+            margin-top: 0;
+        }
+    </style>
 </head>
 <body>
-    <h2>User Data</h2>
-    <p><strong>CPU Name:</strong> {{ user_data.cpu_name }}</p>
-    <p><strong>CPU Purchase Date:</strong> {{ user_data.cpu_purchase_date }}</p>
-    <p><strong>CPU Warranty Duration:</strong> {{ user_data.cpu_warranty_years }} years</p>
-
-    <p><strong>GPU Name:</strong> {{ user_data.gpu_name }}</p>
-    <p><strong>GPU Purchase Date:</strong> {{ user_data.gpu_purchase_date }}</p>
-    <p><strong>GPU Warranty Duration:</strong> {{ user_data.gpu_warranty_years }} years</p>
-
-    <p><strong>RAM Name:</strong> {{ user_data.ram_name }}</p>
-    <p><strong>RAM Purchase Date:</strong> {{ user_data.ram_purchase_date }}</p>
-    <p><strong>RAM Warranty Duration:</strong> {{ user_data.ram_warranty_years }} years</p>
-
-    <p><strong>Motherboard Name:</strong> {{ user_data.motherboard_name }}</p>
-    <p><strong>Motherboard Purchase Date:</strong> {{ user_data.motherboard_purchase_date }}</p>
-    <p><strong>Motherboard Warranty Duration:</strong> {{ user_data.motherboard_warranty_years }} years</p>
+    <h2>Build Details</h2>
+    {% for comp in user_data %}
+    <div class="component">
+        <h3>{{ comp.generic_name }}</h3>
+        <p><strong>Model Name:</strong> {{ comp.model_name }}</p>
+        <p><strong>Purchase Date:</strong> {{ comp.purchase_date }}</p>
+        <p><strong>Warranty (years):</strong> {{ comp.warranty_years }}</p>
+    </div>
+    {% endfor %}
 </body>
 </html>

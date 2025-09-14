@@ -248,7 +248,21 @@
             </div>
         </div>
     </div>
+{% if build_name %}
+    <div class="user-id">
+        <h3>Your unique ID: {{ build_name }}</h3>
+        <p>Use this ID to view your data later at: /{{ build_name }}</p>
 
+        <!-- Display QR code -->
+        <h3>Scan or Save Your QR Code</h3>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+
+        <!-- Download QR Code -->
+        <a href="{{ url_for('download_qr', build_name= build_name) }}" download>
+            <button>Download QR Code</button>
+        </a>
+    </div>
+    {% endif %}
     <script>
         let components = [];
 
@@ -380,40 +394,38 @@
             document.getElementById("confirmPopup").style.display = "none";
         }
 
-        function confirmSubmission() {
-            const buildName = document.getElementById("buildName").value.trim();
-            alert("Build submitted!\n\nBuild Name: " + buildName + "\nNumber of components: " + components.length);
-            closePopup();
-        }
-//      function confirmSubmission() {
-    //     const buildName = document.getElementById("buildName").value.trim();
+        // function confirmSubmission() {
+        //     const buildName = document.getElementById("buildName").value.trim();
+        //     alert("Build submitted!\n\nBuild Name: " + buildName + "\nNumber of components: " + components.length);
+        //     closePopup();
+        // }
+    function confirmSubmission() {
+        const buildName = document.getElementById("buildName").value.trim();
 
-    //     const buildData = {
-    //         buildName: buildName,
-    //         components: components
-    //     };
+        const buildData = {
+            buildName: buildName,
+            components: components
+        };
 
-    //     fetch('/submit-build', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(buildData)
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         alert("Build submitted!\n\n" + JSON.stringify(data, null, 2));
-    //         // Optionally clear the form and components
-    //         components = [];
-    //         renderComponents();
-    //         document.getElementById("buildName").value = "";
-    //         closePopup();
-    //     })
-    //     .catch(error => {
-    //         console.error("Error submitting build:", error);
-    //         alert("Failed to submit build.");
-    //     });
-    // }
+       fetch('/form', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(buildData)
+})
+.then(response => {
+    if (response.redirected) {
+        window.location.href = response.url;
+    } else {
+        return response.text(); // handle other cases if needed
+    }
+})
+.catch(error => {
+    console.error("Error submitting build:", error);
+    alert("Failed to submit build.");
+});
+    }
 
     </script>
 

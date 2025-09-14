@@ -1,4 +1,4 @@
 flask:
-  ip_address: "127.0.0.1"
+  ip_address: "192.168.0.202:5000"
   port: 5000
   base_url: "http://{ip_address}:{port}/{user_id}"

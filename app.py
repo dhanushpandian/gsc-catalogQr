@@ -1,15 +1,14 @@
 import requests
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file,jsonify,redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-
 import random
 import string
 
 import qrcode
 import base64
 from io import BytesIO
-
+import uuid
 import yaml
 
 with open("config.yml", "r") as config_file:
@@ -28,27 +27,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class PCPartData(db.Model):
-    id = db.Column(db.String(10), primary_key=True)  # unique user ID
-    cpu_name = db.Column(db.String(100), nullable=False)
-    cpu_purchase_date = db.Column(db.String(10), nullable=False)
-    cpu_warranty_years = db.Column(db.Integer, nullable=False)
+class PCComponent(db.Model):
+    __tablename__ = 'pc_components'
 
-    gpu_name = db.Column(db.String(100), nullable=False)
-    gpu_purchase_date = db.Column(db.String(10), nullable=False)
-    gpu_warranty_years = db.Column(db.Integer, nullable=False)
-
-    ram_name = db.Column(db.String(100), nullable=False)
-    ram_purchase_date = db.Column(db.String(10), nullable=False)
-    ram_warranty_years = db.Column(db.Integer, nullable=False)
-
-    motherboard_name = db.Column(db.String(100), nullable=False)
-    motherboard_purchase_date = db.Column(db.String(10), nullable=False)
-    motherboard_warranty_years = db.Column(db.Integer, nullable=False)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # unique component ID
+    build_name = db.Column(db.String(100), nullable=False)  # group components into a build
+    generic_name = db.Column(db.String(50), nullable=False)  # CPU, GPU, RAM, etc.
+    model_name = db.Column(db.String(100), nullable=False)  # Model name of the component
+    purchase_date = db.Column(db.String(10), nullable=False)  # e.g., "2025-09-14"
+    warranty_years = db.Column(db.Integer, nullable=False)  # warranty duration in years
 
     def __repr__(self):
-        return f"PCPartData({self.id}, {self.cpu_name}, {self.gpu_name}, {self.ram_name}, {self.motherboard_name})"
-
+        return f"<PCComponent(id={self.id}, build_name={self.build_name}, generic_name={self.generic_name}, model_name={self.model_name})>"
 
 @app.route('/')
 def home():
@@ -62,85 +52,96 @@ def home():
 def form():
     if request.method == 'POST':
 
-        user_id = ''.join(random.choices(
-            string.ascii_uppercase + string.digits, k=10))
+        data = request.get_json()
 
-        cpu_name = request.form['cpu_name']
-        cpu_purchase_date = request.form['cpu_purchase_date']
-        cpu_warranty_years = request.form['cpu_warranty_years']
+        if not data:
+            return jsonify({"status": "error", "message": "No data received"}), 400
 
-        gpu_name = request.form['gpu_name']
-        gpu_purchase_date = request.form['gpu_purchase_date']
-        gpu_warranty_years = request.form['gpu_warranty_years']
+        # Generate a random ID for every entry
+        record_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
-        ram_name = request.form['ram_name']
-        ram_purchase_date = request.form['ram_purchase_date']
-        ram_warranty_years = request.form['ram_warranty_years']
+        # Extract build name
+        build_name = data.get("buildName")  # matches your JS key
+        components = data.get("components", [])
 
-        motherboard_name = request.form['motherboard_name']
-        motherboard_purchase_date = request.form['motherboard_purchase_date']
-        motherboard_warranty_years = request.form['motherboard_warranty_years']
+        # Example of processing data:
+        for comp in components:
+            generic_name = comp.get("genericName")
+            model_name = comp.get("modelName")
+            purchase_date = comp.get("purchaseDate")
+            warranty_years = int(comp.get("warranty"))
+            print(f"Component: {generic_name}, {model_name}, {purchase_date}, {warranty_years}")
+            
+            new_component = PCComponent(
+                build_name=build_name,
+                generic_name=generic_name,
+                model_name=model_name,
+                purchase_date=purchase_date,
+                warranty_years=warranty_years
+            )
+            db.session.add(new_component)
 
-        new_entry = PCPartData(
-            id=user_id,
-            cpu_name=cpu_name,
-            cpu_purchase_date=cpu_purchase_date,
-            cpu_warranty_years=cpu_warranty_years,
-            gpu_name=gpu_name,
-            gpu_purchase_date=gpu_purchase_date,
-            gpu_warranty_years=gpu_warranty_years,
-            ram_name=ram_name,
-            ram_purchase_date=ram_purchase_date,
-            ram_warranty_years=ram_warranty_years,
-            motherboard_name=motherboard_name,
-            motherboard_purchase_date=motherboard_purchase_date,
-            motherboard_warranty_years=motherboard_warranty_years
-        )
-
-        db.session.add(new_entry)
         db.session.commit()
+        
+        # url = f'http://{ip_address}:{port}/{build_name}'
 
-        url = f'http://{ip_address}:{port}/{user_id}'
+        # img = qrcode.make(url)
 
-        img = qrcode.make(url)
+        # img_io = BytesIO()
+        # img.save(img_io, 'PNG')
+        # img_io.seek(0)
 
-        img_io = BytesIO()
-        img.save(img_io, 'PNG')
-        img_io.seek(0)
+        # img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
 
-        img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
-
-        return render_template('form.html', user_id=user_id, qr_code=img_base64)
+        return redirect(url_for('qr_page',  build_name=build_name))
 
     return render_template('form.html')
 
 
-@app.route('/<user_id>', methods=['GET'])
-def user_data(user_id):
-    user_data = PCPartData.query.filter_by(id=user_id).first()
-
-    if user_data:
-        return render_template('user_data.html', user_data=user_data)
-    else:
-        return f"User with ID {user_id} not found."
-
-
-@app.route('/download_qr/<user_id>')
-def download_qr(user_id):
-    # url = f'http://192.168.0.104:5000/{user_id}'
-    url = base_url.format(ip_address=ip_address, port=port, user_id=user_id)
+@app.route('/qr/<build_name>', methods=['GET'])
+def qr_page(build_name):
+    url = f'http://{ip_address}:{port}/{build_name}'
     img = qrcode.make(url)
 
     img_io = BytesIO()
     img.save(img_io, 'PNG')
     img_io.seek(0)
 
-    return send_file(img_io, mimetype='image/png', as_attachment=True, download_name=f"{user_id}_qr.png")
+    img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
 
+    return render_template('qr.html', build_name=build_name, qr_code=img_base64)
 
+@app.route('/download_qr/<build_name>')
+def download_qr(build_name):
+    # Generate the QR code URL pointing to the user's build page
+    url = f'http://{ip_address}:{port}/{build_name}'
+
+    # Create the QR code image
+    img = qrcode.make(url)
+
+    # Save the image to an in-memory file
+    img_io = BytesIO()
+    img.save(img_io, 'PNG')
+    img_io.seek(0)
+
+    # Send the image as a downloadable file
+    return send_file(
+        img_io,
+        mimetype='image/png',
+        as_attachment=True,
+        download_name=f"{build_name}_qr.png"
+    )
+@app.route('/<build_name>', methods=['GET'])
+def user_data(build_name):
+    user_data = PCComponent.query.filter_by(build_name=build_name).all()
+
+    if user_data:
+        return render_template('user_data.html', user_data=user_data)
+    else:
+        return f"User with ID {build_name} not found."
 
 if __name__ == '__main__':
     # Create the database if it doesn't exist
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host=ip_address, port=port)
+    app.run(debug=True, host='0.0.0.0')
