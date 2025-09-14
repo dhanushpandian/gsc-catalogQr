@@ -138,6 +138,7 @@ def download_qr(user_id):
     return send_file(img_io, mimetype='image/png', as_attachment=True, download_name=f"{user_id}_qr.png")
 
 
+
 if __name__ == '__main__':
     # Create the database if it doesn't exist
     with app.app_context():

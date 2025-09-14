@@ -1,163 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC Parts Warranty Form</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Build</title>
     <style>
-        /* Reset margin and padding for all elements */
-        * {
-            margin: 0;
-            padding: 0;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s;
             box-sizing: border-box;
         }
-
-        /* Full-screen layout */
-        body, html {
-            height: 100%;
-            width: 100%;
+        button {
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .component-form {
             display: flex;
             justify-content: center;
-            align-items: center;
-            background-color: #f4f4f9;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Form container styling */
-        .form-container {
-            background-color: white;
-            padding: 30px;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            overflow-y: auto; /* Scrollable for long forms */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-container h2 {
-            text-align: center;
+            gap: 8px;
+            flex-wrap: wrap;
             margin-bottom: 20px;
-            font-size: 2rem; /* Larger heading */
         }
-
-        .form-container h3 {
-            margin-top: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
+        .component-form input {
+            flex: 1;
+            min-width: 100px;
+            max-width: 200px;
         }
-
-        .form-container label {
-            display: block;
-            margin: 10px 0 5px;
-            font-size: 1rem;
+        .component-list {
+            list-style: none;
+            padding: 0;
+            max-width: 800px;
+            margin: auto;
         }
-
-        .form-container input {
-            width: 100%;
-            padding: 15px;
-            margin: 5px 0 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            background-color: #f9f9f9;
+        .component-item {
+            background-color: #ecf0f1;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        .form-container button {
-            width: 100%;
-            padding: 15px;
-            background-color: #4CAF50;
-            color: white;
+        .component-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .component-fields input {
+            flex: 1;
+            min-width: 80px;
             border: none;
-            border-radius: 4px;
-            font-size: 1.2rem;
+            background: transparent;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+        .component-fields input.editable {
+            background-color: white;
+        }
+        .component-fields input[readonly] {
+            background: transparent;
+            color: #000;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .action-buttons button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        .action-buttons button.edit {
+            background-color: #27ae60;
+            color: white;
+        }
+        .action-buttons button.edit:hover {
+            background-color: #219150;
+        }
+        .action-buttons button.remove {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .action-buttons button.remove:hover {
+            background-color: #c0392b;
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right:0;
+            bottom:0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            width: 100%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .popup-content h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .popup-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        .popup-content table, th, td {
+            border: 1px solid #ccc;
+        }
+        .popup-content th, .popup-content td {
+            padding: 8px;
+            text-align: left;
+            word-break: break-word;
+        }
+        .popup-content button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
             cursor: pointer;
+            margin: 5px;
         }
-
-        .form-container button:hover {
-            background-color: #45a049;
+        .confirm-btn {
+            background-color: #27ae60;
+            color: white;
         }
-
-        /* Responsive design: inputs and button adjust on smaller screens */
-        @media (max-width: 600px) {
-            .form-container {
-                padding: 20px;
+        .confirm-btn:hover {
+            background-color: #219150;
+        }
+        .cancel-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .cancel-btn:hover {
+            background-color: #c0392b;
+        }
+        @media (max-width: 768px) {
+            .component-form input {
+                max-width: 140px;
             }
-
-            .form-container h2 {
-                font-size: 1.8rem;
+            .component-fields input {
+                min-width: 60px;
             }
-
-            .form-container input, .form-container button {
-                padding: 12px;
-                font-size: 1rem;
+            .popup-content table th,
+            .popup-content table td {
+                font-size: 0.85em;
+                padding: 6px;
+            }
+            .popup-content button {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+        }
+        @media (max-width: 480px) {
+            .component-form input {
+                max-width: 100px;
+            }
+            .component-fields {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .component-fields input {
+                width: 100%;
+            }
+            .action-buttons {
+                justify-content: flex-end;
+                width: 100%;
+            }
+            .popup-content table th,
+            .popup-content table td {
+                font-size: 0.75em;
+                padding: 4px;
+            }
+            .popup-content button {
+                padding: 6px 12px;
+                font-size: 0.85em;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>Enter PC Parts Details</h2>
-    <form method="POST">
-        <!-- CPU Section -->
-        <h3>CPU</h3>
-        <label for="cpu_name">Part Name:</label>
-        <input type="text" id="cpu_name" name="cpu_name" required>
-        <label for="cpu_purchase_date">Purchase Date:</label>
-        <input type="date" id="cpu_purchase_date" name="cpu_purchase_date" required>
-        <label for="cpu_warranty_years">Warranty Duration (Years):</label>
-        <input type="number" id="cpu_warranty_years" name="cpu_warranty_years" required min="1">
+    <h1>Create Build</h1>
 
-        <!-- GPU Section -->
-        <h3>GPU</h3>
-        <label for="gpu_name">Part Name:</label>
-        <input type="text" id="gpu_name" name="gpu_name" required>
-        <label for="gpu_purchase_date">Purchase Date:</label>
-        <input type="date" id="gpu_purchase_date" name="gpu_purchase_date" required>
-        <label for="gpu_warranty_years">Warranty Duration (Years):</label>
-        <input type="number" id="gpu_warranty_years" name="gpu_warranty_years" required min="1">
+    <input type="text" id="buildName" placeholder="Enter Build Name" /><br><br>
 
-        <!-- RAM Section -->
-        <h3>RAM</h3>
-        <label for="ram_name">Part Name:</label>
-        <input type="text" id="ram_name" name="ram_name" required>
-        <label for="ram_purchase_date">Purchase Date:</label>
-        <input type="date" id="ram_purchase_date" name="ram_purchase_date" required>
-        <label for="ram_warranty_years">Warranty Duration (Years):</label>
-        <input type="number" id="ram_warranty_years" name="ram_warranty_years" required min="1">
-
-        <!-- Motherboard Section -->
-        <h3>Motherboard</h3>
-        <label for="motherboard_name">Part Name:</label>
-        <input type="text" id="motherboard_name" name="motherboard_name" required>
-        <label for="motherboard_purchase_date">Purchase Date:</label>
-        <input type="date" id="motherboard_purchase_date" name="motherboard_purchase_date" required>
-        <label for="motherboard_warranty_years">Warranty Duration (Years):</label>
-        <input type="number" id="motherboard_warranty_years" name="motherboard_warranty_years" required min="1">
-
-        <!-- Submit Button -->
-        <button type="submit">Submit</button>
-    </form>
-  
-    {% if user_id %}
-    <div class="user-id">
-        <h3>Your unique ID: {{ user_id }}</h3>
-        <p>Use this ID to view your data later at: /{{ user_id }}</p>
-
-        <!-- Display QR code -->
-        <h3>Scan or Save Your QR Code</h3>
-        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
-
-        <!-- Download QR Code -->
-        <a href="{{ url_for('download_qr', user_id=user_id) }}" download>
-            <button>Download QR Code</button>
-        </a>
+    <div class="component-form">
+        <input type="text" id="genericName" placeholder="Generic Name"/>
+        <input type="text" id="modelName" placeholder="Model Name"/>
+        <input type="date" id="purchaseDate"/>
+        <input type="number" id="warranty" placeholder="Warranty (years)" min="0"/>
+        <button onclick="addComponent()">+</button>
     </div>
-    {% endif %}
-</div>
-</div>
+
+    <ul id="componentList" class="component-list"></ul>
+
+    <button onclick="submitBuild()">Submit Build</button>
+
+    <div id="confirmPopup" class="popup">
+        <div class="popup-content">
+            <h2>Confirm Build Submission</h2>
+            <p id="popupBuildName"></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Generic Name</th>
+                        <th>Model Name</th>
+                        <th>Purchase Date</th>
+                        <th>Warranty (years)</th>
+                    </tr>
+                </thead>
+                <tbody id="popupComponentList"></tbody>
+            </table>
+            <div style="text-align:center;">
+                <button class="confirm-btn" onclick="confirmSubmission()">Confirm</button>
+                <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let components = [];
+
+        function addComponent() {
+            const generic = document.getElementById("genericName").value.trim();
+            const model = document.getElementById("modelName").value.trim();
+            const date = document.getElementById("purchaseDate").value;
+            const warranty = document.getElementById("warranty").value.trim();
+
+            if (!generic || !model || !date || !warranty) {
+                alert("Please fill in all fields before adding.");
+                return;
+            }
+
+            const comp = {
+                genericName: generic,
+                modelName: model,
+                purchaseDate: date,
+                warranty: warranty
+            };
+
+            components.push(comp);
+            renderComponents();
+            clearComponentForm();
+        }
+
+        function renderComponents() {
+            const list = document.getElementById("componentList");
+            list.innerHTML = "";
+
+            components.forEach((comp, index) => {
+                const li = document.createElement("li");
+                li.className = "component-item";
+                li.innerHTML = `
+                    <div class="component-fields">
+                        <input type="text" value="${comp.genericName}" readonly />
+                        <input type="text" value="${comp.modelName}" readonly class="modelName"/>
+                        <input type="date" value="${comp.purchaseDate}" readonly />
+                        <input type="number" value="${comp.warranty}" min="0" readonly />
+                    </div>
+                    <div class="action-buttons">
+                        <button class="edit" onclick="toggleEdit(${index}, this)">✏️</button>
+                        <button class="remove" onclick="removeComponent(${index})">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleEdit(index, btn) {
+            const li = btn.closest("li");
+            const inputs = li.querySelectorAll(".component-fields input");
+
+            if (btn.innerText === "✏️") {
+                inputs.forEach(input => {
+                    input.removeAttribute("readonly");
+                    input.classList.add("editable");
+                });
+                btn.innerText = "✔️";
+            } else {
+                const generic = inputs[0].value.trim();
+                const model = inputs[1].value.trim();
+                const date = inputs[2].value;
+                const warranty = inputs[3].value.trim();
+
+                if (!generic || !model || !date || !warranty) {
+                    alert("All fields must be filled.");
+                    return;
+                }
+
+                components[index] = {
+                    genericName: generic,
+                    modelName: model,
+                    purchaseDate: date,
+                    warranty: warranty
+                };
+
+                inputs.forEach(input => {
+                    input.setAttribute("readonly", true);
+                    input.classList.remove("editable");
+                });
+                btn.innerText = "✏️";
+            }
+
+        }
+
+        function removeComponent(index) {
+            if (confirm("Are you sure you want to remove this component?")) {
+                components.splice(index, 1);
+                renderComponents();
+            }
+        }
+
+        function clearComponentForm() {
+            document.getElementById("genericName").value = "";
+            document.getElementById("modelName").value = "";
+            document.getElementById("purchaseDate").value = "";
+            document.getElementById("warranty").value = "";
+        }
+
+        function submitBuild() {
+            const buildName = document.getElementById("buildName").value.trim();
+            if (!buildName) {
+                alert("Please enter a build name.");
+                return;
+            }
+            if (components.length === 0) {
+                alert("Please add at least one component.");
+                return;
+            }
+            document.getElementById("popupBuildName").innerText = "Build Name: " + buildName;
+
+            const tbody = document.getElementById("popupComponentList");
+            tbody.innerHTML = "";
+            components.forEach(comp => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${comp.genericName}</td>
+                    <td>${comp.modelName}</td>
+                    <td>${comp.purchaseDate}</td>
+                    <td>${comp.warranty}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            document.getElementById("confirmPopup").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("confirmPopup").style.display = "none";
+        }
+
+        function confirmSubmission() {
+            const buildName = document.getElementById("buildName").value.trim();
+            alert("Build submitted!\n\nBuild Name: " + buildName + "\nNumber of components: " + components.length);
+            closePopup();
+        }
+//      function confirmSubmission() {
+    //     const buildName = document.getElementById("buildName").value.trim();
+
+    //     const buildData = {
+    //         buildName: buildName,
+    //         components: components
+    //     };
+
+    //     fetch('/submit-build', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(buildData)
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         alert("Build submitted!\n\n" + JSON.stringify(data, null, 2));
+    //         // Optionally clear the form and components
+    //         components = [];
+    //         renderComponents();
+    //         document.getElementById("buildName").value = "";
+    //         closePopup();
+    //     })
+    //     .catch(error => {
+    //         console.error("Error submitting build:", error);
+    //         alert("Failed to submit build.");
+    //     });
+    // }
+
+    </script>
 
 </body>
 </html>
